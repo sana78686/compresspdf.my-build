@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #333333;
+  /* Default body copy — headings keep their own font sizes from components */
+  --font-size-body: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--font-size-body);
+}
+
+/* Default paragraph & inline text (excluding heading stacks) */
+p {
+  font-size: var(--font-size-body);
+}
+
+span {
+  font-size: inherit;
+}
+
+/* Cards & FAQ sections — lock body copy to 18px */
+.cp-my-card,
+[class*='card'],
+[class*='faq'],
+.dx-faq,
+.dx-faq-q,
+.dx-faq-a-inner,
+.cp-my-tool-card,
+.cp-my-tool-card-label,
+.cp-my-landing-home-content-body,
+.cp-my-cms-home-cms-body,
+.cp-my-cms-page-content p {
+  font-size: var(--font-size-body);
+}

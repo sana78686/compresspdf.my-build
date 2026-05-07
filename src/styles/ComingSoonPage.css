@@ -1,0 +1,79 @@
+.cp-my-coming-soon-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.cp-my-coming-soon-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem;
+}
+
+.cp-my-coming-soon-text {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 0 0 1.5rem;
+  max-width: 360px;
+}
+
+.cp-my-coming-soon-btn {
+  display: inline-block;
+  background: #fff;
+  color: #1a1a1a;
+  border: 2px solid #e5e7eb;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.cp-my-coming-soon-btn:hover {
+  background: #fff;
+  background-image: linear-gradient(#fff, #fff), linear-gradient(90deg, var(--nuxt-cyan), var(--nuxt-blue));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  border: 2px solid transparent;
+  color: #1a1a1a;
+  box-shadow: 0 2px 12px rgba(0, 200, 181, 0.25);
+}
+
+@media (max-width: 640px) {
+  .cp-my-coming-soon-main {
+    padding: 2rem 1rem;
+  }
+
+  .cp-my-coming-soon-title {
+    font-size: 1.5rem;
+  }
+
+  .cp-my-coming-soon-text {
+    font-size: 1rem;
+    max-width: 100%;
+  }
+
+  .cp-my-coming-soon-btn {
+    min-height: 44px;
+    padding: 0.75rem 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .cp-my-coming-soon-main {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .cp-my-coming-soon-title {
+    font-size: 1.35rem;
+  }
+}

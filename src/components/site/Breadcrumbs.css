@@ -1,0 +1,46 @@
+.cp-my-site-breadcrumbs {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0.5rem var(--content-padding-x) 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.cp-my-site-breadcrumbs-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cp-my-site-breadcrumbs-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cp-my-site-breadcrumbs-item:not(:last-child)::after {
+  content: '/';
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 0.1rem;
+  pointer-events: none;
+}
+
+.cp-my-site-breadcrumbs-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.cp-my-site-breadcrumbs-link:hover {
+  color: var(--accent-red);
+  text-decoration: underline;
+}
+
+.cp-my-site-breadcrumbs-current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
