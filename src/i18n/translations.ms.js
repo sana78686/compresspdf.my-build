@@ -16,7 +16,7 @@ export default {
   },
   title: 'CompressPDF.my — PDF ringan untuk Malaysia',
   /** Home `<title>`, Open Graph, dan landing `<h1>`. */
-  seoHeroH1: 'Mampatkan PDF dengan cepat',
+  seoHeroH1: 'Compress PDF',
   subtitle:
     'Kecilkan saiz fail dengan kualiti yang terjaga — pantas, percuma, dan kerja di pelayar anda tanpa memuat naik ke pelayan kami.',
   selectPdf: 'Pilih file PDF',

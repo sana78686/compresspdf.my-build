@@ -20,7 +20,7 @@ export const translations = {
     },
     title: 'CompressPDF.my — Malaysia & English',
     /** Home `<title>`, Open Graph, and landing `<h1>`. */
-    seoHeroH1: 'CompressPDF Malaysia',
+    seoHeroH1: 'Compress PDF',
     subtitle: 'Shrink PDFs in-browser while keeping clarity — tuned for readers and teams using CompressPDF.my.',
     selectPdf: 'Select PDF files',
     orDrop: 'or drop PDFs here',
