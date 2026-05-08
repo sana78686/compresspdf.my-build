@@ -3,7 +3,7 @@ import ContactPageClient from '@/components/contact/ContactPageClient'
 import { translations } from '@/i18n/translations'
 import { buildCmsMetadata } from '@/lib/cmsMeta'
 
-const c = translations.id.contact
+const c = translations.ms.contact
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildCmsMetadata({

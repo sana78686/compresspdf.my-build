@@ -114,22 +114,24 @@
 }
 
 .cp-my-logo img {
-  height: 2.75rem;
+  height: auto;
   width: auto;
-  max-width: 180px;
+  max-height: 5rem;
+  max-width: min(420px, 92vw);
   display: block;
   object-fit: contain;
 }
 
-/* PNG wordmark logos (header / footer) */
+/* PNG wordmark logos (header / footer — same rules both) */
 .cp-my-logo--image.cp-my-logo--brand {
   gap: 0;
 }
 
 .cp-my-logo--image .cp-my-logo-img {
-  height: 2.75rem;
+  height: auto;
   width: auto;
-  max-width: min(280px, 52vw);
+  max-height: 5rem;
+  max-width: min(420px, 92vw);
   display: block;
   object-fit: contain;
 }
@@ -1973,9 +1975,11 @@ a.cp-my-blog-card.cp-my-landing-blog-card:focus-visible {
     padding: 0.75rem 1rem;
   }
 
-  .cp-my-logo img {
-    height: 2.5rem;
-    max-width: 160px;
+  .cp-my-logo img,
+  .cp-my-logo--image .cp-my-logo-img {
+    height: auto;
+    max-height: 4rem;
+    max-width: min(340px, 88vw);
   }
 
   .cp-my-nav {
@@ -2052,8 +2056,10 @@ a.cp-my-blog-card.cp-my-landing-blog-card:focus-visible {
 
   .cp-my-logo img,
   .cp-my-logo--image .cp-my-logo-img {
-    height: 2.25rem;
-    max-width: 140px;
+    height: auto;
+    max-height: 4rem;
+    max-width: min(340px, 88vw);
+    width: auto;
   }
 
   .cp-my-logo--brand {

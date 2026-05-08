@@ -5,7 +5,7 @@ import { buildCmsMetadata } from '@/lib/cmsMeta'
 
 export const revalidate = 60
 
-const b = translations.id.blog
+const b = translations.ms.blog
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildCmsMetadata({
