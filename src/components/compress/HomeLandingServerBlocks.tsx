@@ -9,7 +9,7 @@ type Lang = 'ms' | 'en'
 
 type Card = { id: number; title: string; description?: string; icon?: string }
 
-type SectionItem = { id?: number; title?: string; description?: string; media_type?: string; media_value?: string }
+type SectionItem = { id?: number; title?: string; description?: string; body?: string; media_type?: string; media_value?: string }
 
 type Section = { id: number; title?: string; description?: string; items?: SectionItem[] }
 
@@ -110,7 +110,12 @@ export default function HomeLandingServerBlocks({
                   <div key={item.id ?? idx} className="cp-my-landing-step">
                     <LandingMediaIcon item={item} idx={idx} stepHeadingId={stepHeadingId} />
                     <h3 id={stepHeadingId} className="cp-my-landing-step-title">{item.title || ''}</h3>
-                    <p className="cp-my-landing-step-desc">{item.description || ''}</p>
+                    <div
+                      className="cp-my-landing-step-desc"
+                      dangerouslySetInnerHTML={{
+                        __html: absolutizeCmsHtmlServer(String(item.body || item.description || ''), siteOrigin),
+                      }}
+                    />
                   </div>
                 )
               })}

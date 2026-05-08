@@ -1,4 +1,5 @@
 import { CARD_ICON_EMOJI, LandingMediaIcon } from '@/components/compress/landingFoldRender'
+import { absolutizeCmsHtml } from '@/utils/cmsAssetUrl'
 
 /**
  * Below-the-fold landing content: CMS feature cards (Use Cards) + dynamic Sections.
@@ -39,7 +40,12 @@ export default function LandingBelowFold({ t, cards = [], howSection = null, sec
                   <div key={item.id ?? idx} className="cp-my-landing-step">
                     <LandingMediaIcon item={item} idx={idx} stepHeadingId={stepHeadingId} />
                     <h3 id={stepHeadingId} className="cp-my-landing-step-title">{item.title || ''}</h3>
-                    <p className="cp-my-landing-step-desc">{item.description || ''}</p>
+                    <div
+                      className="cp-my-landing-step-desc"
+                      dangerouslySetInnerHTML={{
+                        __html: absolutizeCmsHtml(String(item.body || item.description || '')),
+                      }}
+                    />
                   </div>
                 )
               })}

@@ -28,6 +28,7 @@ type MediaItem = {
   id?: number
   title?: string
   description?: string
+  body?: string
 }
 
 export function LandingMediaIcon({
@@ -43,7 +44,7 @@ export function LandingMediaIcon({
   const type = String(item.media_type || '').toLowerCase()
   const val = String(item.media_value || '').trim()
   const title = String(item.title || '').trim()
-  const desc = String(item.description || '').trim()
+  const desc = String(item.body || item.description || '').trim()
   if (type === 'number' || type === 'numbered') {
     return <span className="cp-my-landing-step-num" aria-hidden="true">{val || idx + 1}</span>
   }
