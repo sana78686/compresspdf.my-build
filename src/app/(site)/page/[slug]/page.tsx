@@ -45,6 +45,7 @@ export async function generateMetadata({
 
 export default async function CmsDynamicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  if (slug === 'compress') redirect('/')
   let data: Record<string, unknown>
   try {
     data = (await getPageBySlug(slug, 'ms')) as Record<string, unknown>

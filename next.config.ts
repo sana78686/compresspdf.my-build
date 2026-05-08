@@ -42,6 +42,14 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  /** Legacy standalone `/compress` URLs → canonical tool page (`/`). */
+  async redirects() {
+    return [
+      { source: '/compress', destination: '/', permanent: true },
+      { source: '/page/compress', destination: '/', permanent: true },
+      { source: '/en/compress', destination: '/en', permanent: true },
+    ]
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 365,

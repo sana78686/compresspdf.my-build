@@ -45,6 +45,7 @@ export async function generateMetadata({
 
 export default async function EnCmsDynamicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  if (slug === 'compress') redirect('/en')
   let data: Record<string, unknown>
   try {
     data = (await getPageBySlug(slug, 'en')) as Record<string, unknown>

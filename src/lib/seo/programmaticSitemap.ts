@@ -30,6 +30,31 @@ function normalizePageSlugs(res: unknown): string[] {
     .filter(Boolean)
 }
 
+function shouldOmitCompressPageSlug(slug: string): boolean {
+  return slug === 'compress' || slug.startsWith('compress/')
+}
+
+function omitCompressUrlsFromSitemap(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const drop = new Set([
+    '/compress',
+    '/page/compress',
+    '/en/compress',
+    '/en/page/compress',
+    '/es/compress',
+    '/es/page/compress',
+    '/ms/compress',
+    '/ms/page/compress',
+  ])
+  return entries.filter((e) => {
+    try {
+      const path = new URL(e.url).pathname.replace(/\/+$/, '') || '/'
+      return !drop.has(path)
+    } catch {
+      return true
+    }
+  })
+}
+
 function escapeXml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -98,6 +123,7 @@ export async function getProgrammaticSitemapEntries(): Promise<MetadataRoute.Sit
       })
     }
     for (const slug of normalizePageSlugs(msPages)) {
+      if (shouldOmitCompressPageSlug(slug)) continue
       entries.push({
         url: `${base}/page/${encodeURIComponent(slug)}`,
         lastModified,
@@ -106,6 +132,7 @@ export async function getProgrammaticSitemapEntries(): Promise<MetadataRoute.Sit
       })
     }
     for (const slug of normalizePageSlugs(enPages)) {
+      if (shouldOmitCompressPageSlug(slug)) continue
       entries.push({
         url: `${base}/en/page/${encodeURIComponent(slug)}`,
         lastModified,
@@ -117,7 +144,7 @@ export async function getProgrammaticSitemapEntries(): Promise<MetadataRoute.Sit
     /* CMS unavailable — static URLs still listed */
   }
 
-  return entries
+  return omitCompressUrlsFromSitemap(entries)
 }
 
 export function sitemapEntriesToXml(entries: MetadataRoute.Sitemap): string {

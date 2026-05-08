@@ -55,6 +55,32 @@ export function normalizeSitemapXmlLocations(xml: string, preferredOrigin: strin
   )
 }
 
+/** Paths legacy/CMS added — compressor UI lives on `/` and localized roots only. */
+const LEGACY_COMPRESS_SITEMAP_PATHS = new Set([
+  '/compress',
+  '/page/compress',
+  '/en/compress',
+  '/en/page/compress',
+  '/es/compress',
+  '/es/page/compress',
+  '/ms/compress',
+  '/ms/page/compress',
+])
+
+/** Strip `<url>` blocks pointing at standalone `/compress` paths from synced/Laravel XML. */
+function stripLegacyCompressToolUrlsFromSitemapXml(xml: string): string {
+  return xml.replace(/<url>\s*([\s\S]*?)<\/url>/gi, (full, inner: string) => {
+    const loc = inner.match(/<loc>\s*([^<]+?)\s*<\/loc>/i)
+    if (!loc) return full
+    try {
+      const path = new URL(loc[1].trim()).pathname.replace(/\/+$/, '') || '/'
+      return LEGACY_COMPRESS_SITEMAP_PATHS.has(path) ? '' : full
+    } catch {
+      return full
+    }
+  })
+}
+
 /** Point `Sitemap:` lines at the preferred origin (same host as canonical). */
 export function normalizeRobotsSitemapLines(body: string, preferredOrigin: string): string {
   const base = preferredOrigin.replace(/\/+$/, '')
@@ -97,7 +123,8 @@ export async function resolveRobotsTxtBody(): Promise<string | null> {
 export async function resolveSitemapXmlBody(): Promise<string | null> {
   const pref = siteOriginFromEnv()
   const synced = await readPublicRootFile('sitemap.xml')
-  if (synced) return normalizeSitemapXmlLocations(synced, pref)
+  if (synced)
+    return stripLegacyCompressToolUrlsFromSitemapXml(normalizeSitemapXmlLocations(synced, pref))
 
   const url = cmsTenantSeoUrl('sitemap.xml')
   try {
@@ -109,7 +136,7 @@ export async function resolveSitemapXmlBody(): Promise<string | null> {
     const text = await res.text()
     if (!text.trim()) return null
     if (looksLikeHtmlDocument(text)) return null
-    return normalizeSitemapXmlLocations(text, pref)
+    return stripLegacyCompressToolUrlsFromSitemapXml(normalizeSitemapXmlLocations(text, pref))
   } catch {
     return null
   }
