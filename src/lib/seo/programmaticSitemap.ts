@@ -1,9 +1,19 @@
 import type { MetadataRoute } from 'next'
 import { siteOriginFromEnv } from '@/lib/cms/html'
-import { getBlogs, getPages } from '@/lib/cms/server'
+import { getBlogs, getPages, getLegalNav } from '@/lib/cms/server'
 
-/** Keep in sync with `src/app/(site)/legal/[slug]/page.tsx` */
-const LEGAL_SLUGS = ['terms', 'privacy-policy', 'disclaimer', 'about-us', 'cookie-policy']
+/** Fallback legal slugs if API unavailable */
+const FALLBACK_LEGAL_SLUGS = ['terms', 'privacy-policy', 'disclaimer', 'about-us', 'cookie-policy']
+
+/** Extract enabled legal slugs from API response */
+function normalizeLegalSlugs(res: unknown): string[] {
+  if (!res || typeof res !== 'object') return []
+  const legal = (res as { legal?: Record<string, boolean> }).legal
+  if (!legal || typeof legal !== 'object') return []
+  return Object.entries(legal)
+    .filter(([, enabled]) => enabled === true)
+    .map(([slug]) => slug)
+}
 
 function normalizeBlogSlugs(res: unknown): { slug: string }[] {
   if (Array.isArray(res)) {
@@ -84,28 +94,38 @@ export async function getProgrammaticSitemapEntries(): Promise<MetadataRoute.Sit
     priority,
   }))
 
-  for (const slug of LEGAL_SLUGS) {
-    entries.push({
-      url: `${base}/legal/${encodeURIComponent(slug)}`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    })
-    entries.push({
-      url: `${base}/en/legal/${encodeURIComponent(slug)}`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    })
-  }
-
   try {
-    const [msRes, enRes, msPages, enPages] = await Promise.all([
+    const [msRes, enRes, msPages, enPages, msLegal, enLegal] = await Promise.all([
       getBlogs('ms'),
       getBlogs('en'),
       getPages('ms'),
       getPages('en'),
+      getLegalNav('ms'),
+      getLegalNav('en'),
     ])
+
+    // Dynamic legal pages from API (falls back to hardcoded if empty)
+    const msLegalSlugs = normalizeLegalSlugs(msLegal)
+    const enLegalSlugs = normalizeLegalSlugs(enLegal)
+    const legalSlugsMs = msLegalSlugs.length > 0 ? msLegalSlugs : FALLBACK_LEGAL_SLUGS
+    const legalSlugsEn = enLegalSlugs.length > 0 ? enLegalSlugs : FALLBACK_LEGAL_SLUGS
+
+    for (const slug of legalSlugsMs) {
+      entries.push({
+        url: `${base}/legal/${encodeURIComponent(slug)}`,
+        lastModified,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      })
+    }
+    for (const slug of legalSlugsEn) {
+      entries.push({
+        url: `${base}/en/legal/${encodeURIComponent(slug)}`,
+        lastModified,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      })
+    }
     for (const b of normalizeBlogSlugs(msRes)) {
       entries.push({
         url: `${base}/blog/${encodeURIComponent(b.slug)}`,
@@ -141,7 +161,21 @@ export async function getProgrammaticSitemapEntries(): Promise<MetadataRoute.Sit
       })
     }
   } catch {
-    /* CMS unavailable — static URLs still listed */
+    /* CMS unavailable — use fallback legal slugs */
+    for (const slug of FALLBACK_LEGAL_SLUGS) {
+      entries.push({
+        url: `${base}/legal/${encodeURIComponent(slug)}`,
+        lastModified,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      })
+      entries.push({
+        url: `${base}/en/legal/${encodeURIComponent(slug)}`,
+        lastModified,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      })
+    }
   }
 
   return omitCompressUrlsFromSitemap(entries)
