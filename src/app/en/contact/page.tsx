@@ -16,5 +16,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function EnContactPage() {
-  return <ContactPageClient />
+  return <ContactPageClient heroTitle={c.title} />
 }

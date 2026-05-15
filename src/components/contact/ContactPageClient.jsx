@@ -9,7 +9,11 @@ import { getPreferredLang, supportedLangs, langPrefix } from '@/i18n/translation
 import { usePathLang } from '@/hooks/usePathLang'
 import '@/styles/ContactPage.css'
 
-export default function ContactPageClient() {
+/**
+ * @param {{ heroTitle?: string }} props
+ * `heroTitle` from the server page aligns contact `<h1>` with metadata and SSR HTML.
+ */
+export default function ContactPageClient({ heroTitle } = {}) {
   const lang = usePathLang()
   const t = useTranslation(lang)
   const localeForApi = supportedLangs.includes(lang) ? lang : getPreferredLang()
@@ -104,10 +108,13 @@ export default function ContactPageClient() {
   }
 
   const lp = langPrefix(lang)
+  const heading =
+    typeof heroTitle === 'string' && heroTitle.trim() !== '' ? heroTitle.trim() : t('contact.title')
 
   if (loading) {
     return (
       <div className="cp-my-contact-page cp-my-wrap">
+        <h1 className="cp-my-contact-page-title">{heading}</h1>
         <p className="cp-my-contact-page-loading">Loading…</p>
       </div>
     )
@@ -116,6 +123,7 @@ export default function ContactPageClient() {
   if (error) {
     return (
       <div className="cp-my-contact-page cp-my-wrap">
+        <h1 className="cp-my-contact-page-title">{heading}</h1>
         <p className="cp-my-contact-page-error">{error}</p>
         <Link href={`${lp}/`} className="cp-my-contact-page-back">
           ← {t('contact.backHome')}
@@ -129,7 +137,7 @@ export default function ContactPageClient() {
       <JsonLd data={settings?.json_ld} />
       <div className="cp-my-contact-page-grid">
         <div className="cp-my-contact-page-intro">
-          <h1 className="cp-my-contact-page-title">{t('contact.title')}</h1>
+          <h1 className="cp-my-contact-page-title">{heading}</h1>
           <p className="cp-my-contact-page-intro-text">{t('contact.intro')}</p>
           <div className="cp-my-contact-page-details" aria-label={t('contact.detailsHeading')}>
             {contactDetailsVisible(settings) ? (

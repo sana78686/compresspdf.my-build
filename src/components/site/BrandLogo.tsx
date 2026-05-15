@@ -1,3 +1,7 @@
+'use client'
+
+import { SITE_LOGO_IMG_ALT } from '@/constants/brand'
+
 type BrandLogoProps = {
   href: string
   ariaLabel: string
@@ -18,7 +22,7 @@ export default function BrandLogo({ href, ariaLabel, variant = 'header' }: Brand
   return (
     <a href={href} className="cp-my-logo cp-my-logo--image cp-my-logo--brand" dir="ltr" aria-label={ariaLabel}>
       {/* eslint-disable-next-line @next/next/no-img-element -- intentional: serve PNG as authored */}
-      <img src={src} alt="" className="cp-my-logo-img" width={320} height={72} decoding="async" fetchPriority={variant === 'header' ? 'high' : 'auto'} />
+      <img src={src} alt={SITE_LOGO_IMG_ALT} className="cp-my-logo-img" width={320} height={72} decoding="async" fetchPriority={variant === 'header' ? 'high' : 'auto'} />
     </a>
   )
 }
