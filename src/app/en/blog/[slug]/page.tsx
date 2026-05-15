@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { getBlogBySlug } from '@/lib/cms/server'
 import { absolutizeCmsHtmlServer, siteOriginFromEnv } from '@/lib/cms/html'
 import { JsonLdScript } from '@/components/cms/JsonLdScript'
+import CmsPageCompressToolSection from '@/components/compress/CmsPageCompressToolSection'
 import { buildCmsMetadata } from '@/lib/cmsMeta'
 import { langPrefix } from '@/i18n/translations'
 
@@ -67,11 +68,12 @@ export default async function EnBlogPostPage({ params }: { params: Promise<{ slu
   const jsonLd = data?.json_ld as { '@graph'?: unknown[] } | undefined
 
   return (
-    <article className="cp-my-cms-page cp-my-cms-blog cp-my-wrap">
+    <article className="cp-my-cms-page cp-my-cms-blog cp-my-wrap cp-my-cms-blog--with-compress-tool">
       <JsonLdScript data={jsonLd} />
       <header className="cp-my-cms-blog-header">
         <h1 className="cp-my-cms-blog-title">{title}</h1>
       </header>
+      <CmsPageCompressToolSection serverH1Rendered />
       <div className="cp-my-cms-page-content cp-my-cms-blog-content" dangerouslySetInnerHTML={{ __html: html }} />
       <footer className="cp-my-cms-page-footer">
         <Link href="/en/blog" className="cp-my-cms-page-back">

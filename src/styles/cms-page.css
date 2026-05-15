@@ -7,6 +7,10 @@
   box-sizing: border-box;
 }
 
+.cp-my-cms-page.cp-my-wrap.cp-my-cms-page--below-compress-tool {
+  padding-top: 1.25rem;
+}
+
 .cp-my-cms-page-loading,
 .cp-my-cms-page-error {
   color: var(--text-muted);
@@ -222,6 +226,15 @@
 }
 
 /* ----- Blog post layout (article with metadata, hero image, rich text) ----- */
+.cp-my-cms-blog--with-compress-tool .cp-my-cms-blog-header {
+  margin-bottom: 1rem;
+}
+
+.cp-my-cms-blog--with-compress-tool .cp-my-cms-page-content.cp-my-cms-blog-content {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-light);
+}
+
 .cp-my-cms-blog .cp-my-cms-blog-header {
   margin-bottom: 2rem;
   padding-bottom: 0;

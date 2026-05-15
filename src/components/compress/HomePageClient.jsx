@@ -20,7 +20,7 @@ import { absolutizeCmsHtml } from '@/utils/cmsAssetUrl'
 /** Served from /public/pdf.worker.min.mjs (copy from pdfjs-dist on install). */
 const pdfWorkerUrl = '/pdf.worker.min.mjs'
 
-/** CMS REST/cache helpers (~many KiB). Dynamic import keeps `/` + `/en` off critical JS until fetch paths run. */
+/** CMS REST/cache helpers (~many KiB). Dynamic import keeps `/` off critical JS until fetch paths run. */
 function loadCmsClient() {
   return import('@/lib/cms-client')
 }
@@ -164,22 +164,35 @@ async function compressPdfOnce(compress, inputBuffer, dpi, jpegQualityFrac, onPr
 }
 
 /**
- * @param {{ homeCmsFromServer?: { html: string, jsonLd?: object | null }, landingExtrasOnServer?: boolean, hideLandingCompressor?: boolean }} props
- * `landingExtrasOnServer`: home route only — CMS body / below-fold / blog preview rendered in `page.tsx` (View Source).
- * `hideLandingCompressor`: marketing-only home — hero text without upload/settings/results (CompressPDF.my).
+ * @param {{
+ *   homeCmsFromServer?: { html: string, jsonLd?: object | null },
+ *   landingExtrasOnServer?: boolean,
+ *   hideLandingCompressor?: boolean,
+ *   cmsPageTitle?: string,
+ *   suppressHeroH1?: boolean,
+ *   embedCompressWithoutClientHero?: boolean,
+ *   nestedUnderServerHeroSection?: boolean,
+ * }} props
+ * `hideLandingCompressor`: marketing-only home — hero text without upload/settings/results (PDFCompressor.us).
  */
 export default function HomePageClient({
   homeCmsFromServer,
   landingExtrasOnServer = false,
   hideLandingCompressor = false,
+  cmsPageTitle,
+  suppressHeroH1 = false,
+  embedCompressWithoutClientHero = false,
+  nestedUnderServerHeroSection = false,
 } = {}) {
   const lang = usePathLang()
   const pathname = usePathname() || '/'
   const t = useTranslation(lang)
   const lp = langPrefix(lang)
-  /** Single-page tool flow: upload → settings → results all on `/` or `/en`. */
-  const isHomeLanding = pathname === `${lp}/` || pathname === lp
-  const skipClientLandingExtras = Boolean(landingExtrasOnServer && isHomeLanding)
+  const isHomePath = pathname === `${lp}/` || pathname === lp
+  const hasCmsPageTitle = typeof cmsPageTitle === 'string' && cmsPageTitle.trim() !== ''
+  const showCompressUi = isHomePath || hasCmsPageTitle || embedCompressWithoutClientHero
+  const skipClientLandingExtras = Boolean(landingExtrasOnServer && isHomePath)
+  const heroH1Text = hasCmsPageTitle ? cmsPageTitle.trim() : t('seoHeroH1')
 
   const COLOR_OPTIONS = [
     { value: 'no-change', label: t('colorNoChange') },
@@ -211,7 +224,7 @@ export default function HomePageClient({
   const [landingCards, setLandingCards] = useState([])
   /** Optional CMS “how it works” block from home-cards when no dynamic sections */
   const [howSection, setHowSection] = useState(null)
-  /** CMS “Home page” rich text — SSR on `/` and `/en`, else client fetch on landing */
+  /** CMS “Home page” rich text — SSR on `/`, else client fetch on landing */
   const [cmsHomeHtml, setCmsHomeHtml] = useState(() =>
     homeCmsFromServer ? String(homeCmsFromServer.html ?? '') : '',
   )
@@ -221,9 +234,9 @@ export default function HomePageClient({
   )
   const [toolJsonLd, setToolJsonLd] = useState(null)
 
-  const showSettingsSection = isHomeLanding && files.length > 0
-  const showResultsSection = isHomeLanding && compressionResults?.length > 0
-  const toolEngaged = isHomeLanding && (files.length > 0 || compressionResults?.length > 0)
+  const showSettingsSection = showCompressUi && files.length > 0
+  const showResultsSection = showCompressUi && compressionResults?.length > 0
+  const toolEngaged = showCompressUi && (files.length > 0 || compressionResults?.length > 0)
 
   const parsedSettings = useMemo(() => parseCompressionSettings(settings), [settings.dpi, settings.imageQuality])
   const parsedTargetKb = useMemo(() => parseTargetKb(targetSizeKb), [targetSizeKb])
@@ -256,7 +269,7 @@ export default function HomePageClient({
 
   /* Warm pdf.js + jspdf + worker while user adjusts DPI (first Compress click avoids cold import). */
   useEffect(() => {
-    if (!(isHomeLanding && files.length > 0)) return undefined
+    if (!(showCompressUi && files.length > 0)) return undefined
     let cancelled = false
     const cancel = scheduleIdle(() => {
       void Promise.all([import('pdfjs-dist'), import('jspdf')]).then(() => {
@@ -267,13 +280,13 @@ export default function HomePageClient({
       cancelled = true
       cancel()
     }
-  }, [isHomeLanding, files.length])
+  }, [showCompressUi, files.length])
 
   const publicPathForSeo = pathname.split('?')[0] || '/'
 
   /* Home landing: fetch CMS home HTML only when not already SSR. */
   useEffect(() => {
-    if (!isHomeLanding) return undefined
+    if (!isHomePath) return undefined
     if (homeCmsFromServer !== undefined) return undefined
     let cancelled = false
     void loadCmsClient()
@@ -298,10 +311,10 @@ export default function HomePageClient({
     return () => {
       cancelled = true
     }
-  }, [isHomeLanding, lang, publicPathForSeo, homeCmsFromServer])
+  }, [isHomePath, lang, publicPathForSeo, homeCmsFromServer])
 
   useEffect(() => {
-    if (!(isHomeLanding && files.length > 0)) {
+    if (!(showCompressUi && files.length > 0)) {
       setToolJsonLd(null)
       return undefined
     }
@@ -322,7 +335,7 @@ export default function HomePageClient({
       cancelled = true
       cancel()
     }
-  }, [isHomeLanding, files.length, lang, publicPathForSeo])
+  }, [showCompressUi, files.length, lang, publicPathForSeo])
 
   /* Fetch cards / sections when below-the-fold is shown */
   useEffect(() => {
@@ -353,6 +366,7 @@ export default function HomePageClient({
 
   /* Defer below-the-fold content to reduce TBT on mobile (Lighthouse Performance) */
   useEffect(() => {
+    if (!isHomePath) return undefined
     if (skipClientLandingExtras) return undefined
     const schedule = () => startTransition(() => setShowBelowFold(true))
     const id =
@@ -360,14 +374,14 @@ export default function HomePageClient({
         ? requestIdleCallback(schedule, { timeout: 1500 })
         : setTimeout(schedule, 100)
     return () => (typeof cancelIdleCallback !== 'undefined' ? cancelIdleCallback(id) : clearTimeout(id))
-  }, [skipClientLandingExtras])
+  }, [isHomePath, skipClientLandingExtras])
 
   /* Do NOT sync files/results from React state into compress-session on every render:
    * a new route mount starts with files=[] and would clear the session before hydrate runs. */
 
   /* Restore PDF list / results from sessionStorage when opening home. */
   useEffect(() => {
-    if (!isHomeLanding) return undefined
+    if (!showCompressUi) return undefined
     if (files.length === 0) {
       const sf = getSessionFiles()
       if (sf.length) {
@@ -379,7 +393,7 @@ export default function HomePageClient({
       const sr = getSessionResults()
       if (sr?.length) setCompressionResults(sr)
     }
-  }, [isHomeLanding])
+  }, [showCompressUi])
 
   const handleFileSelect = useCallback((e) => {
     const selected = Array.from(e.target.files || []).filter(isPdfFile)
@@ -785,7 +799,48 @@ export default function HomePageClient({
     [compressionResults],
   )
 
-  if (hideLandingCompressor && isHomeLanding) {
+  const uploadZoneEl = (
+    <div
+      className={`cp-my-upload-zone ${isDragging ? 'cp-my-upload-zone--dragging' : ''}`}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+    >
+      <div className="cp-my-upload-actions cp-my-landing-upload-cta">
+        <button
+          type="button"
+          className="cp-my-btn-select-pdf"
+          onClick={triggerFileInput}
+          aria-label={t('ariaSelectPdf')}
+        >
+          {t('selectPdf')}
+        </button>
+      </div>
+      <p
+        className="cp-my-upload-hint"
+        role="button"
+        tabIndex={0}
+        onClick={triggerFileInput}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            triggerFileInput()
+          }
+        }}
+      >
+        {t('orDrop')}
+      </p>
+    </div>
+  )
+
+  const readySubtitleEl = (
+    <p id="landing-select-heading" className="cp-my-landing-upload-heading">
+      {t('landing.readySubtitle')}
+    </p>
+  )
+
+  if (hideLandingCompressor && isHomePath) {
     return (
       <>
         <JsonLd data={homeJsonLd} />
@@ -808,7 +863,7 @@ export default function HomePageClient({
 
   return (
     <>
-      <JsonLd data={toolEngaged ? toolJsonLd : isHomeLanding ? homeJsonLd : null} />
+      <JsonLd data={toolEngaged ? toolJsonLd : isHomePath ? homeJsonLd : null} />
       <div id="main-content-inner" className="cp-my-main cp-my-main--landing" tabIndex={-1}>
         <input
           ref={fileInputRef}
@@ -821,48 +876,35 @@ export default function HomePageClient({
           aria-label={t('ariaSelectPdf')}
         />
 
-        {isHomeLanding && (
+        {showCompressUi && (
           <>
-            {/* SEO: Upload section first – main CTA above the fold. Real visible H1 so Google crawls it. */}
-            <section id="compress-tool" className="cp-my-landing-upload-section cp-my-landing-upload-section--first" aria-labelledby="landing-upload-h1">
-              <h1 id="landing-upload-h1" className="cp-my-landing-upload-h1">
-                {t('seoHeroH1')}
-              </h1>
-              <p id="landing-select-heading" className="cp-my-landing-upload-heading">{t('landing.readySubtitle')}</p>
-              <div
-                className={`cp-my-upload-zone ${isDragging ? 'cp-my-upload-zone--dragging' : ''}`}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
+            {suppressHeroH1 && nestedUnderServerHeroSection ? (
+              <>
+                {readySubtitleEl}
+                {uploadZoneEl}
+              </>
+            ) : suppressHeroH1 ? (
+              <section
+                id="compress-tool"
+                className="cp-my-landing-upload-section cp-my-landing-upload-section--first"
+                aria-labelledby="landing-select-heading"
               >
-                <div className="cp-my-upload-actions cp-my-landing-upload-cta">
-                  <button
-                    type="button"
-                    className="cp-my-btn-select-pdf"
-                    onClick={triggerFileInput}
-                    aria-label={t('ariaSelectPdf')}
-                  >
-                    {t('selectPdf')}
-                  </button>
-                </div>
-                <p
-                  className="cp-my-upload-hint"
-                  role="button"
-                  tabIndex={0}
-                  onClick={triggerFileInput}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      triggerFileInput()
-                    }
-                  }}
-                >
-                  {t('orDrop')}
-                </p>
-              </div>
-
-            </section>
+                {readySubtitleEl}
+                {uploadZoneEl}
+              </section>
+            ) : (
+              <section
+                id="compress-tool"
+                className="cp-my-landing-upload-section cp-my-landing-upload-section--first"
+                aria-labelledby="landing-upload-h1"
+              >
+                <h1 id="landing-upload-h1" className="cp-my-landing-upload-h1">
+                  {heroH1Text}
+                </h1>
+                {readySubtitleEl}
+                {uploadZoneEl}
+              </section>
+            )}
 
         {/* Step 2: Settings + file list */}
             {showSettingsSection && (
@@ -884,7 +926,7 @@ export default function HomePageClient({
                 <span className="cp-my-file-badge">{t('fileProtection')}</span>
                 <button
                   type="button"
-                  className={`link-add-more ${files.length >= MAX_PDF_FILES ? 'link-add-more--disabled' : ''}`}
+                  className={`cp-my-link-add-more ${files.length >= MAX_PDF_FILES ? 'cp-my-link-add-more--disabled' : ''}`}
                   onClick={triggerFileInput}
                   disabled={files.length >= MAX_PDF_FILES}
                 >
@@ -898,7 +940,7 @@ export default function HomePageClient({
                 {files.map((file, i) => (
                   <li key={`${file.name}-${file.lastModified}-${i}`} className="cp-my-file-card">
                     <div className="cp-my-file-card-preview">
-                      <span className="cp-my-file-card-icon">PDF</span>
+                      <span className="file-card-icon">PDF</span>
                     </div>
                     <span className="cp-my-file-card-name" title={file.name}>{file.name}</span>
                     <button
@@ -1247,7 +1289,11 @@ export default function HomePageClient({
             )}
           </section>
             )}
+          </>
+        )}
 
+        {isHomePath && (
+          <>
             {homeCmsFromServer === undefined &&
               cmsHtmlHasVisibleText(cmsHomeHtml) && (
               <section

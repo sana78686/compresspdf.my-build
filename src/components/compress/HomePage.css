@@ -2125,6 +2125,10 @@ a.cp-my-blog-card.cp-my-landing-blog-card:focus-visible {
     padding-inline: 0;
   }
 
+  .cp-my-main.cp-my-cms-main section .cp-my-main.cp-my-main--landing {
+    padding-inline: 0;
+  }
+
   .cp-my-main:not(.cp-my-main--landing):not(.cp-my-cms-main) {
     padding: 1.5rem 1rem 2.5rem;
   }
@@ -2238,6 +2242,10 @@ a.cp-my-blog-card.cp-my-landing-blog-card:focus-visible {
   }
 
   .cp-my-main.cp-my-cms-main > .cp-my-main.cp-my-main--landing {
+    padding-inline: 0;
+  }
+
+  .cp-my-main.cp-my-cms-main section .cp-my-main.cp-my-main--landing {
     padding-inline: 0;
   }
 

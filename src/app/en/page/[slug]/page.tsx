@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { getPageBySlug } from '@/lib/cms/server'
 import { absolutizeCmsHtmlServer, siteOriginFromEnv } from '@/lib/cms/html'
 import { JsonLdScript } from '@/components/cms/JsonLdScript'
+import CmsPageCompressToolSection from '@/components/compress/CmsPageCompressToolSection'
 import { buildCmsMetadata } from '@/lib/cmsMeta'
 import { langPrefix } from '@/i18n/translations'
 
@@ -62,19 +63,29 @@ export default async function EnCmsDynamicPage({ params }: { params: Promise<{ s
   const origin = siteOriginFromEnv()
   const html = absolutizeCmsHtmlServer(String(data?.content || ''), origin)
   const jsonLd = data?.json_ld
+  const pageTitle = String(data?.title || slug)
 
   return (
-    <article className="cp-my-cms-page cp-my-wrap">
+    <>
       <JsonLdScript data={jsonLd} />
-      <header className="cp-my-cms-page-header">
-        <h1 className="cp-my-cms-page-title">{String(data?.title || slug)}</h1>
-      </header>
-      <div className="cp-my-cms-page-content" dangerouslySetInnerHTML={{ __html: html }} />
-      <footer className="cp-my-cms-page-footer">
-        <Link href="/en" className="cp-my-cms-page-back">
-          ← Back to home
-        </Link>
-      </footer>
-    </article>
+      <section
+        id="compress-tool"
+        className="cp-my-landing-upload-section cp-my-landing-upload-section--first"
+        aria-labelledby="page-main-h1"
+      >
+        <h1 id="page-main-h1" className="cp-my-landing-upload-h1">
+          {pageTitle}
+        </h1>
+        <CmsPageCompressToolSection serverH1Rendered nestedUnderServerHeroSection />
+      </section>
+      <article className="cp-my-cms-page cp-my-wrap cp-my-cms-page--below-compress-tool">
+        <div className="cp-my-cms-page-content" dangerouslySetInnerHTML={{ __html: html }} />
+        <footer className="cp-my-cms-page-footer">
+          <Link href="/en" className="cp-my-cms-page-back">
+            ← Back to home
+          </Link>
+        </footer>
+      </article>
+    </>
   )
 }
