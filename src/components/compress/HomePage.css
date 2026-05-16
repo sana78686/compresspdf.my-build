@@ -726,6 +726,128 @@
   -webkit-hyphens: auto;
 }
 
+/* CMS sections (“Who can use…”) — max 3 cards per row, numbered badge */
+.cp-my-landing-cms-section .cp-my-landing-cms-section-title {
+  margin-bottom: 0.4rem;
+}
+
+.cp-my-landing-section-subtitle--cms {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 1rem;
+  padding: 0;
+  padding-bottom: 0;
+  max-width: min(52rem, 100%);
+  text-align: left;
+}
+
+.cp-my-landing-cms-card-grid {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  text-align: left;
+}
+
+.cp-my-landing-cms-card-grid--1 {
+  grid-template-columns: 1fr;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.cp-my-landing-cms-card-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.cp-my-landing-cms-card-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cp-my-landing-cms-card {
+  box-sizing: border-box;
+  padding: 1.35rem 1.25rem;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cp-my-landing-cms-card:hover {
+  border-color: rgba(27, 77, 62, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.cp-my-landing-cms-card .cp-my-landing-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 0 0.85rem;
+  background: var(--accent-red, #2b579a);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.cp-my-landing-cms-card .cp-my-landing-card-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin: 0 0 0.75rem;
+}
+
+.cp-my-landing-cms-card .cp-my-landing-step-img {
+  margin-bottom: 0.85rem;
+  border-radius: 10px;
+}
+
+.cp-my-landing-cms-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.cp-my-landing-cms-card-body {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+  text-align: left;
+}
+
+.cp-my-landing-cms-card-body p {
+  margin: 0 0 0.65em;
+}
+
+.cp-my-landing-cms-card-body p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .cp-my-landing-cms-card-grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .cp-my-landing-cms-card-grid--1,
+  .cp-my-landing-cms-card-grid--2,
+  .cp-my-landing-cms-card-grid--3 {
+    grid-template-columns: 1fr;
+    max-width: none;
+    margin-inline: 0;
+  }
+}
+
 /* FAQ accordion – full width of content area */
 .cp-my-landing-faq {
   padding: 2rem 0 2.5rem;

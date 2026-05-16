@@ -109,6 +109,7 @@ export default function Footer({
         <div className="cp-my-footer-divider" />
 
         <div className="cp-my-footer-bottom">
+          {supportedLangs.length > 1 ? (
           <div className="cp-my-footer-lang-wrap" ref={langRef}>
             <button
               type="button"
@@ -144,6 +145,7 @@ export default function Footer({
               </ul>
             )}
           </div>
+          ) : null}
           <div className="cp-my-footer-social-copy">
             {/* Social icons — restore when real profile URLs are ready
             <nav className="cp-my-footer-social" aria-label="Social links">

@@ -52,7 +52,8 @@ export const translations = {
     footerResources: 'RESOURCES',
     footerLegal: 'LEGAL',
     footerCompany: 'COMPANY',
-    footerTagline: 'Malaysia-focused PDF helpdesk — fast, private previews powered by ApimsTec.',
+    footerTagline:
+      'Malaysia-friendly PDF tools — fast, private, and free in your browser.',
     footerHome: 'Home',
     footerFeatures: 'Features',
     footerPricing: 'Pricing',

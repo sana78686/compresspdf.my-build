@@ -97,26 +97,36 @@ export default function HomeLandingServerBlocks({
         const items = Array.isArray(sec.items) ? sec.items : []
         if (!items.length) return null
         const sectionId = `cms-section-${sec.id}`
+        const n = items.length
+        const gridCols = n <= 1 ? '1' : n === 2 ? '2' : '3'
         return (
-          <section key={sec.id} className="cp-my-landing-section cp-my-landing-how" aria-labelledby={sectionId}>
-            <h2 id={sectionId} className="cp-my-landing-section-title">
+          <section
+            key={sec.id}
+            className="cp-my-landing-section cp-my-landing-how cp-my-landing-cms-section"
+            aria-labelledby={sectionId}
+          >
+            <h2 id={sectionId} className="cp-my-landing-section-title cp-my-landing-cms-section-title">
               {sec.title || ''}
             </h2>
-            {sec.description ? <p className="cp-my-landing-section-subtitle">{sec.description}</p> : null}
-            <div className="cp-my-landing-steps">
+            {sec.description ? (
+              <p className="cp-my-landing-section-subtitle cp-my-landing-section-subtitle--cms">{sec.description}</p>
+            ) : null}
+            <div className={`cp-my-landing-cms-card-grid cp-my-landing-cms-card-grid--${gridCols}`}>
               {items.map((item, idx) => {
                 const stepHeadingId = `landing-step-${sec.id}-${item.id ?? idx}-heading`
                 return (
-                  <div key={item.id ?? idx} className="cp-my-landing-step">
+                  <article key={item.id ?? idx} className="cp-my-landing-cms-card">
                     <LandingMediaIcon item={item} idx={idx} stepHeadingId={stepHeadingId} />
-                    <h3 id={stepHeadingId} className="cp-my-landing-step-title">{item.title || ''}</h3>
+                    <h3 id={stepHeadingId} className="cp-my-landing-cms-card-title">
+                      {item.title || ''}
+                    </h3>
                     <div
-                      className="cp-my-landing-step-desc"
+                      className="cp-my-landing-cms-card-body cp-my-cms-page-content"
                       dangerouslySetInnerHTML={{
                         __html: absolutizeCmsHtmlServer(String(item.body || item.description || ''), siteOrigin),
                       }}
                     />
-                  </div>
+                  </article>
                 )
               })}
             </div>
